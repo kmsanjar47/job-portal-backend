@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from models.job_model import Job
+from models.job_model import Job, JobCreate
 from repository.database import get_db
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import select as Select
@@ -25,8 +25,8 @@ async def read_job(job_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/jobs")
-async def create_job(job: Job, db: Session = Depends(get_db)):
+async def create_job(job: JobCreate, db: Session = Depends(get_db)):
     db.add(job)
     db.commit()
     db.refresh(job)
-    return job
+    return 

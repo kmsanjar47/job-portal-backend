@@ -13,7 +13,7 @@ app = FastAPI()
 
 @app.middleware("http")
 async def verify_token(request: Request, call_next):
-    if request.url.path == "auth/token" or request.url.path == "auth/register" or request.url.path == "/token":
+    if request.url.path == "/token" or request.url.path == "/register":
         response = await call_next(request)
         return response
     token = request.headers.get("Authorization")

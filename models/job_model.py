@@ -1,4 +1,5 @@
 from datetime import datetime
+from models import category_model
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from repository.database import Base
 from pydantic import BaseModel
@@ -22,9 +23,9 @@ class Job(Base):
 class JobCreate(BaseModel):
     title: str
     description: str
-    company_name: str
+    company_name: str 
     location: str
-    category: str
+    category: int
     status: int
     documents: str
     # created_at: DateTime
