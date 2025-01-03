@@ -3,13 +3,14 @@ from fastapi import FastAPI, HTTPException, status
 import models.user_model
 from repository.database import engine, get_db
 import models.user_model as models, utils.auth as auth
-from views import auth_views, job_views
+from views import auth_views, category_views, job_views
 
 # Run the database migrations
 models.Base.metadata.create_all(bind=engine)
 
 # Initialize the FastAPI app
 app = FastAPI()
+
 
 @app.middleware("http")
 async def verify_token(request: Request, call_next):
@@ -33,8 +34,10 @@ async def verify_token(request: Request, call_next):
 
 app.include_router(auth_views.router, tags=["auth"])
 app.include_router(job_views.router, tags=["jobs"], prefix="/jobs")
+app.include_router(category_views.router, tags=["categories"], prefix="/categories")
 
 # Run the FastAPI app
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="localhost", port=8000)

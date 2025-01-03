@@ -1,8 +1,8 @@
-"""migrations
+"""Fix user_id foreign key type
 
-Revision ID: 7f0aee1d298f
+Revision ID: 287cc9b6ad24
 Revises: 
-Create Date: 2024-12-28 19:42:40.069775
+Create Date: 2025-01-03 17:13:52.439398
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '7f0aee1d298f'
+revision: str = '287cc9b6ad24'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -27,43 +27,6 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_category_id'), 'category', ['id'], unique=False)
-    op.create_table('job',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('title', sa.String(), nullable=False),
-    sa.Column('description', sa.String(), nullable=False),
-    sa.Column('created_at', sa.DateTime(), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), nullable=False),
-    sa.Column('company_name', sa.String(), nullable=False),
-    sa.Column('location', sa.String(), nullable=False),
-    sa.Column('status', sa.Integer(), nullable=False),
-    sa.Column('documents', sa.String(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_job_id'), 'job', ['id'], unique=False)
-    op.create_table('messages',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_messages_id'), 'messages', ['id'], unique=False)
-    op.create_table('notifications',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('message', sa.String(), nullable=False),
-    sa.Column('created_at', sa.DateTime(), nullable=False),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_notifications_id'), 'notifications', ['id'], unique=False)
-    op.create_table('user_profile',
-    sa.Column('id', sa.UUID(), nullable=False),
-    sa.Column('name', sa.String(), nullable=False),
-    sa.Column('email', sa.String(), nullable=False),
-    sa.Column('phone_number', sa.String(), nullable=False),
-    sa.Column('graduation_date', sa.DateTime(), nullable=False),
-    sa.Column('profile_photo', sa.String(), nullable=True),
-    sa.Column('resume', sa.String(), nullable=True),
-    sa.Column('department', sa.String(), nullable=False),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_user_profile_id'), 'user_profile', ['id'], unique=False)
     op.create_table('users',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('username', sa.String(), nullable=False),
@@ -75,33 +38,86 @@ def upgrade() -> None:
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_index(op.f('ix_users_username'), 'users', ['username'], unique=True)
+    op.create_table('job',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('created_by', sa.UUID(), nullable=False),
+    sa.Column('title', sa.String(), nullable=False),
+    sa.Column('description', sa.String(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('company_name', sa.String(), nullable=False),
+    sa.Column('location', sa.String(), nullable=False),
+    sa.Column('category', sa.Integer(), nullable=False),
+    sa.Column('status', sa.Integer(), nullable=False),
+    sa.Column('documents', sa.String(), nullable=True),
+    sa.ForeignKeyConstraint(['category'], ['category.id'], ),
+    sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_job_id'), 'job', ['id'], unique=False)
+    op.create_table('messages',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('user_id_one', sa.UUID(), nullable=False),
+    sa.Column('user_id_two', sa.UUID(), nullable=False),
+    sa.ForeignKeyConstraint(['user_id_one'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['user_id_two'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_messages_id'), 'messages', ['id'], unique=False)
+    op.create_table('notifications',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=False),
+    sa.Column('message', sa.String(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_notifications_id'), 'notifications', ['id'], unique=False)
     op.create_table('application_history',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=False),
     sa.Column('job_id', sa.Integer(), nullable=False),
     sa.Column('status', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['job_id'], ['job.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_application_history_id'), 'application_history', ['id'], unique=False)
+    op.create_table('user_profile',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=False),
+    sa.Column('name', sa.String(), nullable=False),
+    sa.Column('email', sa.String(), nullable=False),
+    sa.Column('phone_number', sa.String(), nullable=False),
+    sa.Column('graduation_date', sa.DateTime(), nullable=False),
+    sa.Column('profile_photo', sa.String(), nullable=True),
+    sa.Column('resume', sa.String(), nullable=True),
+    sa.Column('department', sa.String(), nullable=False),
+    sa.Column('saved_jobs', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['saved_jobs'], ['job.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_user_profile_id'), 'user_profile', ['id'], unique=False)
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_index(op.f('ix_application_history_id'), table_name='application_history')
-    op.drop_table('application_history')
-    op.drop_index(op.f('ix_users_username'), table_name='users')
-    op.drop_index(op.f('ix_users_id'), table_name='users')
-    op.drop_index(op.f('ix_users_email'), table_name='users')
-    op.drop_table('users')
     op.drop_index(op.f('ix_user_profile_id'), table_name='user_profile')
     op.drop_table('user_profile')
+    op.drop_index(op.f('ix_application_history_id'), table_name='application_history')
+    op.drop_table('application_history')
     op.drop_index(op.f('ix_notifications_id'), table_name='notifications')
     op.drop_table('notifications')
     op.drop_index(op.f('ix_messages_id'), table_name='messages')
     op.drop_table('messages')
     op.drop_index(op.f('ix_job_id'), table_name='job')
     op.drop_table('job')
+    op.drop_index(op.f('ix_users_username'), table_name='users')
+    op.drop_index(op.f('ix_users_id'), table_name='users')
+    op.drop_index(op.f('ix_users_email'), table_name='users')
+    op.drop_table('users')
     op.drop_index(op.f('ix_category_id'), table_name='category')
     op.drop_table('category')
     # ### end Alembic commands ###

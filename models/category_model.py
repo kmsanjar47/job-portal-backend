@@ -9,16 +9,19 @@ from sqlalchemy import Column, Integer, String, DateTime
 from repository.database import Base
 from pydantic import BaseModel
 
+
 class Category(Base):
     __tablename__ = "category"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, nullable=False)
-    created_at = Column(DateTime, nullable=False,default=datetime.now())
+    created_at = Column(DateTime, nullable=False, default=datetime.now())
+
 
 class CategoryCreate(BaseModel):
 
     name: str
     # created_at: DateTime
+
 
 class CategoryResponse(BaseModel):
     name: str
