@@ -10,6 +10,13 @@ from pydantic import BaseModel
 import models.user_model
 import models.job_model
 
+enum = {
+    "Applied": 1,
+    "Accepted": 2,
+    "Rejected": 3,
+    "Resume Downloaded": 4
+}
+
 
 class ApplicationHistory(Base):
     __tablename__ = "application_history"

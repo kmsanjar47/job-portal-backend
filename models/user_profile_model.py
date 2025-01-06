@@ -13,13 +13,13 @@ class UserProfile(Base):
     user_id = Column(
         UUID(as_uuid=True), ForeignKey(models.user_model.User.id), nullable=False
     )
-    name = Column(String, nullable=False)
-    email = Column(String, nullable=False)
-    phone_number = Column(String, nullable=False)
-    graduation_date = Column(DateTime, nullable=False, default=None)
+    name = Column(String, nullable=True)
+    email = Column(String, nullable=True)
+    phone_number = Column(String, nullable=True)
+    graduation_date = Column(DateTime, nullable=True, default=None)
     profile_photo = Column(String, nullable=True)
     resume = Column(String, nullable=True)
-    department = Column(String, nullable=False)
+    department = Column(String, nullable=True)
     saved_jobs = Column(ForeignKey(models.job_model.Job.id), nullable=True)
 
 

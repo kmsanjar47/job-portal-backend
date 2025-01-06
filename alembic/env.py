@@ -9,6 +9,7 @@ from models.job_model import Job
 from models.application_history_model import ApplicationHistory
 from models.category_model import Category
 from models.user_profile_model import UserProfile
+from models.saved_jobs_model import SavedJobsModel
 
 from alembic import context
 
