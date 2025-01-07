@@ -3,7 +3,14 @@ from fastapi import FastAPI, HTTPException, status
 import models.user_model
 from repository.database import engine, get_db
 import models.user_model as models, utils.auth as auth
-from views import auth_views, category_views, job_views, notification_views, user_profile_views
+from views import (
+    application_history_views,
+    auth_views,
+    category_views,
+    job_views,
+    notification_views,
+    user_profile_views,
+)
 from fastapi.staticfiles import StaticFiles
 
 # Run the database migrations
@@ -36,12 +43,22 @@ async def verify_token(request: Request, call_next):
 app.include_router(auth_views.router, tags=["auth"])
 app.include_router(job_views.router, tags=["jobs"], prefix="/jobs")
 app.include_router(category_views.router, tags=["categories"], prefix="/categories")
-app.include_router(user_profile_views.router, tags=["user-profile"], prefix="/user-profile")
-app.include_router(notification_views.router, tags=["notifications"], prefix="/notifications")
+app.include_router(
+    user_profile_views.router, tags=["user-profile"], prefix="/user-profile"
+)
+app.include_router(
+    notification_views.router, tags=["notifications"], prefix="/notifications"
+)
+app.include_router(
+    application_history_views.router,
+    tags=["application-history"],
+    prefix="/application-history",
+)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Run the FastAPI app
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="192.168.0.223", port=8000)
+    # uvicorn.run(app, host="192.168.0.223", port=8000)
+    uvicorn.run(app, host="localhost", port=8000)
