@@ -37,7 +37,6 @@ async def read_jobs(token: str, db: Session = Depends(get_db)):
     filtered_applied_job_ids = (
         db.query(ApplicationHistory)
         .filter(ApplicationHistory.user_id == user_id)
-        .filter(ApplicationHistory.status == 1)
         .values(ApplicationHistory.job_id)
     )
 
@@ -47,8 +46,14 @@ async def read_jobs(token: str, db: Session = Depends(get_db)):
         .values(SavedJobsModel.job_id)
     )
 
-    filtered_applied_job_ids = list(filtered_applied_job_ids)[0]
-    filtered_saved_job_ids = list(filtered_saved_job_ids)[0]
+    if not filtered_applied_job_ids:
+        filtered_applied_job_ids = []
+    else:
+        filtered_applied_job_ids = [job_id[0] for job_id in filtered_applied_job_ids]
+    if not filtered_saved_job_ids:
+        filtered_saved_job_ids = []
+    else:
+        filtered_saved_job_ids = [job_id[0] for job_id in filtered_saved_job_ids]
 
     result = []
     jobs = db.query(Job).all()

@@ -33,11 +33,28 @@ async def get_application_history_by_user(token: str, db: Session = Depends(get_
     user = await get_current_user(token, db)
     user_id = user.id
 
+    result = []
+
     application_history = (
         db.query(ApplicationHistory).filter(ApplicationHistory.user_id == user_id).all()
     )
+    enum = {
+        1: "Applied",
+        2: "Accepted",
+        3: "Rejected",
+        4: "Resume Downloaded",
+    }
+    for application in application_history:
+        result.append(
+            {
+                "user_id": application.user_id,
+                "job_id": application.job_id,
+                "status": enum[application.status],
+                "job_data": db.query(Job).filter(Job.id == application.job_id).first(),
+            }
+        )
 
-    return application_history
+    return result
 
 
 @router.get("/get-application-history-by-job/{token}/{job_id}")
