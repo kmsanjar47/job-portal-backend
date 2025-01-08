@@ -128,7 +128,6 @@ async def create_job(
     request: Request = None,  # Optional file upload
     db: Session = Depends(get_db),
 ):
-
     # Decode token and get the user id
     user = await get_current_user(token, db)
     if user is None:
