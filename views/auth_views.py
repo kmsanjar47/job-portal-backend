@@ -29,7 +29,7 @@ def register_user(user: models.UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 
-@router.post("/token", response_model=models.Token)
+@router.post("/login", response_model=models.Token)
 def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
@@ -45,7 +45,13 @@ def login_for_access_token(
     access_token = auth.create_access_token(
         data={"sub": user.username, "id": str(user.id)}
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "username": user.username,
+        "email": user.email,
+        "is_general_user": user.is_general_user,
+    }
 
 
 async def get_current_user(

@@ -107,29 +107,64 @@ async def get_all_created_job_application_history(
 
     created_jobs = db.query(Job).filter(Job.created_by == user_id).all()
     application_history_with_user_info = []
+    user_profiles = []
     for job in created_jobs:
         application_history = (
             db.query(ApplicationHistory)
             .filter(ApplicationHistory.job_id == job.id)
-            .all()
+            .distinct(ApplicationHistory.user_id)
         )
+
+        user_profiles = []
+
         for application in application_history:
             user_profile = (
                 db.query(UserProfile)
                 .filter(UserProfile.user_id == application.user_id)
                 .first()
             )
-            application_history_with_user_info.append(
-                {
-                    "user_id": application.user_id,
-                    "job_id": application.job_id,
-                    "status": application.status,
-                    "user_info": user_profile,
-                    "job_data": db.query(Job)
-                    .filter(Job.id == application.job_id)
-                    .first(),
-                }
+            status = (
+                application_history.filter(
+                    ApplicationHistory.user_id == application.user_id
+                )
+                .filter(ApplicationHistory.job_id == job.id)
+                .first()
+                .status
             )
+
+            user_profile.__setattr__("status", status)
+
+            user_profiles.append(user_profile)
+
+        application_history_with_user_info.append(
+            {
+                "user_id": application.user_id,
+                "job_id": job.id,
+                "user_info": user_profiles,
+                "job_data": job,
+            }
+        )
+
+    return application_history_with_user_info
+
+    # user_ids = [application.user_id for application in application_history]
+    # for application in application_history:
+    #     user_profile = (
+    #         db.query(UserProfile)
+    #         .filter(UserProfile.user_id == application.user_id)
+    #         .first()
+    #     )
+    #     application_history_with_user_info.append(
+    #         {
+    #             "user_id": application.user_id,
+    #             "job_id": application.job_id,
+    #             "status": application.status,
+    #             "user_info": user_profile,
+    #             "job_data": db.query(Job)
+    #             .filter(Job.id == application.job_id)
+    #             .first(),
+    #         }
+    #     )
 
     return application_history_with_user_info
 
