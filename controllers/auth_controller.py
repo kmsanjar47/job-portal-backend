@@ -49,6 +49,6 @@ class AuthController:
                 detail="Invalid authentication credentials",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        user = db.query(models.User).filter(models.User.username == username).first()
+        user = db.query(User).filter(User.username == username).first()
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
