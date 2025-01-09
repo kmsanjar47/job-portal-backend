@@ -1,5 +1,6 @@
 from datetime import datetime
 import shutil
+from controllers.notification_controller import NotificationController
 from fastapi import (
     APIRouter,
     Depends,
@@ -28,8 +29,5 @@ router = APIRouter()
 
 @router.get("/notification-by-user/{token}")
 async def read_notification_by_user(token: str, db: Session = Depends(get_db)):
-    user = await get_current_user(token, db)
-    user_id = user.id
-    # use sqlalchemy to get all jobs
-    notifications = db.query(Notifications).filter(Notifications.user_id == user_id).all()
-    return notifications
+    notfications = NotificationController.read_notification_by_user(token, db)
+    return notfications
